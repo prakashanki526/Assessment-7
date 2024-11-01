@@ -1,0 +1,86 @@
+-- Creating manager table
+CREATE TABLE manager (
+    manager_id INT PRIMARY KEY AUTO_INCREMENT,
+    manager_name VARCHAR(50) NOT NULL
+);
+
+-- Creating employee table
+CREATE TABLE employee (
+    employee_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    manager_id INT,
+    FOREIGN KEY (manager_id) REFERENCES manager(manager_id) ON DELETE SET NULL
+);
+
+
+-- Inserting managers
+INSERT INTO manager (manager_name) VALUES
+('Ankit'),
+('Prakash');
+
+-- Inserting employees
+INSERT INTO employee (first_name, last_name, manager_id) VALUES
+('Yatharth', 'Kumar', 1),
+('Siya', 'Goyal', 1),   
+('Sarthak', 'Gupta', 2),
+('Shivam', 'Gulia', 2),
+('Yamini','Singh',null); -- not assigned to any manager
+
+
+-- Displaying manager table
+select * from manager;
+
+-- Displaying employee table
+select * FROM employee;
+
+-- 1. getting all employee under each manager
+SELECT 
+    Manager.manager_name AS Manager,
+    Employee.employee_id,
+    Employee.first_name,
+    Employee.last_name
+FROM 
+    Manager
+JOIN 
+    Employee ON Manager.manager_id = Employee.manager_id
+ORDER BY 
+    Manager.manager_name;
+    
+-- 2. getting how many employees come under any manager
+SELECT 
+    Manager.manager_name AS Manager,
+    COUNT(Employee.employee_id) AS Employee_Count
+FROM 
+    Manager
+LEFT JOIN 
+    Employee ON Manager.manager_id = Employee.manager_id
+WHERE 
+    Manager.manager_name = 'Ankit'
+GROUP BY 
+    Manager.manager_name;
+
+-- 3. get all manager details
+select * from manager;
+
+-- 4. find any employee is there who has not been assigned to any manager
+SELECT e.*
+FROM Employee e
+LEFT JOIN Manager m ON e.manager_id = m.manager_id
+WHERE e.manager_id IS NULL;
+
+-- 5. write a function to get fullname (first_name+last_name)
+DELIMITER $$
+CREATE FUNCTION get_fullname(first_name VARCHAR(50), last_name VARCHAR(50))
+RETURNS VARCHAR(100)
+DETERMINISTIC
+BEGIN
+    RETURN CONCAT(first_name, ' ', last_name);
+END$$
+DELIMITER ;
+
+-- getting employees with full name using the function that I have created above
+SELECT employee_id,get_fullname(first_name, last_name) AS Full_name FROM Employee;
+
+
+
